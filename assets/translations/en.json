@@ -1,0 +1,46 @@
+{
+  "title": "best run",
+  "menu": {
+    "about": "About",
+    "activity": "Activity",
+    "profile": "Profile",
+    "language": "Language",
+    "logout": "Logout",
+    "tagwrite": "Write to Tag",
+    "en": "English",
+    "hu": "Hungarian"
+  },
+  "about": {
+    "version": "Version"
+  },
+  "login": {
+    "title": "Login",
+    "username": "Username",
+    "password": "Password",
+    "requiredFieldError": "This field is required!",
+    "login": "Login"
+  },
+  "messageList": { 
+    "screenTitle": "Activity",
+    "noMessage": "You have no new messages."
+  },
+  "message": {
+    "screenTitle": "Message",
+    "screenTitleGroup": "Group message",
+    "screenTitleSystem": "System message",
+    "answerOptionsTitle": "Answer options",
+    "answeredTitle": "Answer",
+    "customAnswer": "Custom answer",
+    "backButtonText": "Back",
+    "sendButtonText": "Send answer"
+  },
+  "common": {
+    "okButtonText": "Ok"
+  },
+  "errors": {
+    "error": "Error!",
+    "timeoutException": "Error accessing server!",
+    "noInternet": "Internet connection is needed.",
+    "loginException": "Invalid username or password!"
+  }
+}

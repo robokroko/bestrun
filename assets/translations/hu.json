@@ -1,0 +1,46 @@
+{
+  "title": "best run",
+  "menu": {
+    "about": "Névjegy",
+    "activity": "Aktivitások",
+    "profile": "Profil",
+    "language": "Nyelv",
+    "logout": "Kijelentkezés",
+    "tagwrite": "Tagírás",
+    "en": "Angol",
+    "hu": "Magyar"
+  },
+  "about": {
+    "version": "Verzió"
+  },
+  "login": {
+    "title": "Bejelentkezés",
+    "username": "Felhasználónév",
+    "password": "Jelszó",
+    "requiredFieldError": "A mező kitöltése kötelező!",
+    "login": "Belépés"
+  },
+  "messageList": { 
+    "screenTitle": "Aktivitás",
+    "noMessage": "Önnek nincs új üzenete."
+  },
+  "message": {
+    "screenTitle": "Üzenet",
+    "screenTitleGroup": "Csoportos üzenet",
+    "screenTitleSystem": "Rendszer üzenet",
+    "answerOptionsTitle": "Válasz lehetőségek",
+    "answeredTitle": "Válasz",
+    "customAnswer": "Egyéni válasz",
+    "backButtonText": "Vissza",
+    "sendButtonText": "Válasz küldése"
+  },
+  "common": {
+    "okButtonText": "Ok"
+  },
+  "errors": {
+    "error": "Hiba!",
+    "timeoutException": "Hiba a szerver elérése közben!",
+    "noInternet": "Internet kapcsolat szükséges.",
+    "loginException": "Érvénytelen felhasználónév vagy jelszó!"
+  }
+}
