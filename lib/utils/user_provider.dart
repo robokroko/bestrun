@@ -1,6 +1,5 @@
 class UserProvider {
   int userId;
-  int messageDayCount;
 
   static final UserProvider _instance = UserProvider._internal();
 
