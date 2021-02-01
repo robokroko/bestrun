@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'screens/activity_screen.dart';
 import 'screens/about_screen.dart';
 import 'screens/myActivity_screen.dart';
+import 'screens/tagwrite_screen.dart';
 
 void main() {
   runApp(
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         '/about': (BuildContext context) => AboutScreen(),
         '/myActivity': (BuildContext context) => MyActivityScreen(),
         '/profile': (BuildContext context) => AboutScreen(),
+        '/tagwrite': (BuildContext context) => TagWriteScreen(),
       },
       home: LoginScreen(),
     );

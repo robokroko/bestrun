@@ -24,8 +24,6 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: BestRunAppBar(),
-      drawerEdgeDragWidth: 0,
-      endDrawer: Menu(),
       body: Column(
         children: [
           ListTile(

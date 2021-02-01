@@ -190,7 +190,7 @@ class _MenuState extends State<Menu> {
                         ),
                       ),
                     ),
-                    onTap: this.goToAboutScreen,
+                    onTap: this.goToTagWriteScreen,
                   ),
                 ),
               ),
@@ -336,5 +336,9 @@ class _MenuState extends State<Menu> {
 
   void goToMyActivityScreen() {
     Navigator.pushNamed(context, '/myActivity');
+  }
+
+  void goToTagWriteScreen() {
+    Navigator.pushNamed(context, '/tagwrite');
   }
 }
