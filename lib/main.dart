@@ -7,6 +7,7 @@ import 'screens/activity_screen.dart';
 import 'screens/about_screen.dart';
 import 'screens/myActivity_screen.dart';
 import 'screens/tagwrite_screen.dart';
+import 'screens/profile_screen.dart';
 
 void main() {
   runApp(
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
         '/login': (BuildContext context) => LoginScreen(),
         '/about': (BuildContext context) => AboutScreen(),
         '/myActivity': (BuildContext context) => MyActivityScreen(),
-        '/profile': (BuildContext context) => AboutScreen(),
+        '/profile': (BuildContext context) => UserProfileScreen(),
         '/tagwrite': (BuildContext context) => TagWriteScreen(),
       },
       home: LoginScreen(),

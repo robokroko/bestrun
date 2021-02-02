@@ -23,6 +23,38 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      body: Container(
+        child: ListView.builder(itemBuilder: (BuildContext ctxt, int index) {
+          return Container(
+            margin: EdgeInsets.fromLTRB(0, 10, 20, 0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  topRight: const Radius.circular(5),
+                  bottomRight: const Radius.circular(5)),
+            ),
+            width: double.infinity,
+            child: Column(
+              children: [
+                Card(
+                  elevation: 5,
+                  clipBehavior: Clip.antiAlias,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: new BorderRadius.only(
+                        topRight: const Radius.circular(5),
+                        bottomRight: const Radius.circular(5)),
+                  ),
+                  child: expansionList(ctxt, index),
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+  /*Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
       appBar: BestRunAppBar(),
       body: Column(
         children: [
@@ -233,5 +265,46 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
         ],
       ),
     );
-  }
+  }*/
+}
+
+Widget expansionList(BuildContext context, int index) {
+  print("Building expansion tile");
+  return new ExpansionTile(
+    initiallyExpanded: false,
+    title: Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "2020.12.19",
+              style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 17,
+                  fontFamily: 'Helvetica',
+                  fontWeight: FontWeight.bold),
+            ),
+            Text(
+              "03:04:06:20",
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 15,
+                fontFamily: 'Helvetica',
+              ),
+            ),
+            Text('12 km'),
+            Text('4 CP'),
+          ],
+        ),
+      ],
+    ),
+    children: [
+      Text('Row 1'),
+      Text('Row 2'),
+      Text('Row 3'),
+      Text('Row 4'),
+    ],
+  );
 }

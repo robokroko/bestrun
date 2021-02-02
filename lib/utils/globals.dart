@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bestrun/models/profile_model.dart';
 
 class MessageEventType {
   static const none = 0;
@@ -60,3 +61,15 @@ const TextStyle menuHeaderUnderTextStyle = TextStyle(
   fontSize: 12.0,
   fontWeight: FontWeight.w100,
 );
+
+class ProfileData {
+  static List<Profile> profiles = [
+    Profile(
+      name: 'Teszt Jakab',
+      email: 'tesztmail@gmail.com',
+      weight: '78 kg',
+      height: '175 cm',
+      dateOfBirth: '1990.09.09',
+    ),
+  ];
+}

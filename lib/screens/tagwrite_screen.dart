@@ -97,16 +97,34 @@ class _TagWriteScreenState extends State<TagWriteScreen> {
                   Text("Record", style: TextStyle(color: Colors.white)),
                   TextFormField(
                     controller: record.mediaTypeController,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return "Can not be empty";
+                      }
+                      return null;
+                    },
+                    style: TextStyle(
+                      color: globals.unreadMessageWhiteTextColor,
+                    ),
                     decoration: InputDecoration(
-                      hintText: "Media type",
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(0.0)),
+                        borderSide: BorderSide(
+                            width: 0.4,
+                            color: globals.unreadMessageGreyTextColor),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(0.0)),
+                        borderSide:
+                            BorderSide(width: 0.4, color: globals.bestRunGreen),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(0.0)),
+                        borderSide:
+                            BorderSide(width: 0.4, color: globals.bestRunGreen),
+                      ),
                     ),
                   ),
-                  TextFormField(
-                    controller: record.payloadController,
-                    decoration: InputDecoration(
-                      hintText: "Payload",
-                    ),
-                  )
                 ],
               ),
             ),
