@@ -27,6 +27,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
   Location _locationTracker = Location();
   Marker marker;
   GoogleMapController _controller;
+  Set<Polyline> _polylines = {};
+  LocationData lastLocation;
   //stopwatch variable
   final _isHours = true;
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
@@ -45,8 +47,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
   );
 
   Future<Uint8List> getMarker() async {
-    ByteData byteData = await DefaultAssetBundle.of(context)
-        .load("assets/images/logo_small.png");
+    ByteData byteData = await DefaultAssetBundle.of(context).load("assets/images/logo_small.png");
     return byteData.buffer.asUint8List();
   }
 
@@ -56,7 +57,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
       marker = Marker(
           markerId: MarkerId("home"),
           position: latlng,
-          rotation: newLocalData.heading,
           draggable: false,
           zIndex: 2,
           flat: true,
@@ -76,16 +76,15 @@ class _ActivityScreenState extends State<ActivityScreen> {
         _locationSubscription.cancel();
       }
 
-      _locationSubscription =
-          _locationTracker.onLocationChanged().listen((newLocalData) {
+      _locationSubscription = _locationTracker.onLocationChanged().listen((newLocalData) {
         if (_controller != null) {
-          _controller.animateCamera(CameraUpdate.newCameraPosition(
-              new CameraPosition(
-                  bearing: 0.0,
-                  target: LatLng(newLocalData.latitude, newLocalData.longitude),
-                  tilt: 0,
-                  zoom: 18.00)));
+          _controller.animateCamera(CameraUpdate.newCameraPosition(new CameraPosition(
+              bearing: 0.0, target: LatLng(newLocalData.latitude, newLocalData.longitude), tilt: 0, zoom: 18.00)));
           updateMarker(newLocalData, imageData);
+          if (lastLocation != null) {
+            createPolyline(newLocalData);
+          }
+          lastLocation = newLocalData;
         }
       });
     } on PlatformException catch (e) {
@@ -95,11 +94,24 @@ class _ActivityScreenState extends State<ActivityScreen> {
     }
   }
 
+  createPolyline(LocationData newLocalData) {
+    setState(() {
+      _polylines.add(
+        Polyline(
+          polylineId: PolylineId(UniqueKey().toString()),
+          points: [
+            LatLng(lastLocation.latitude, lastLocation.longitude),
+            LatLng(newLocalData.latitude, newLocalData.longitude),
+          ],
+        ),
+      );
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    _stopWatchTimer.rawTime.listen((value) =>
-        print('rawTime $value ${StopWatchTimer.getDisplayTime(value)}'));
+    _stopWatchTimer.rawTime.listen((value) => print('rawTime $value ${StopWatchTimer.getDisplayTime(value)}'));
     _stopWatchTimer.minuteTime.listen((value) => print('minuteTime $value'));
     _stopWatchTimer.secondTime.listen((value) => print('secondTime $value'));
     _stopWatchTimer.records.listen((value) => print('records $value'));
@@ -132,6 +144,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     mapType: MapType.normal,
                     initialCameraPosition: initialLocation,
                     markers: Set.of((marker != null) ? [marker] : []),
+                    polylines: _polylines,
                     onMapCreated: (GoogleMapController controller) {
                       _controller = controller;
                     },
@@ -153,8 +166,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     initialData: _stopWatchTimer.rawTime.value,
                     builder: (context, snap) {
                       final value = snap.data;
-                      final displayTime =
-                          StopWatchTimer.getDisplayTime(value, hours: _isHours);
+                      final displayTime = StopWatchTimer.getDisplayTime(value, hours: _isHours);
                       return Column(
                         children: [
                           Row(
@@ -235,10 +247,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
                       return Container();
                     }
                     Future.delayed(const Duration(milliseconds: 100), () {
-                      _scrollController.animateTo(
-                          _scrollController.position.maxScrollExtent,
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeOut);
+                      _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+                          duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
                     });
                     print('Listen records. $value');
                     return ListView.builder(
