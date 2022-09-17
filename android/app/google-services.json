@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "483623020982",
+    "project_id": "bestrun-af54c",
+    "storage_bucket": "bestrun-af54c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:483623020982:android:4c5e51fb04500eb191f917",
+        "android_client_info": {
+          "package_name": "com.example.betsrun"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "483623020982-ehp2s2e0q8l2c8434d44673sbkilcnkd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC7S08LW8iR3APu9xE7wped2YjwDv0EAM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "483623020982-ehp2s2e0q8l2c8434d44673sbkilcnkd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

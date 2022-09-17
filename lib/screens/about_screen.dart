@@ -3,7 +3,7 @@ import 'package:bestrun/utils/globals.dart' as globals;
 import 'package:easy_localization/easy_localization.dart';
 
 class AboutScreen extends StatefulWidget {
-  AboutScreen({Key key}) : super(key: key);
+  AboutScreen({Key? key}) : super(key: key);
 
   final String versionTitle = 'about.version'.tr();
   final String screenTitle = 'menu.about'.tr();

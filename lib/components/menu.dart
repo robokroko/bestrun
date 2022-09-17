@@ -1,11 +1,10 @@
-import 'package:bestrun/components/loading_modal.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bestrun/utils/globals.dart' as globals;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class Menu extends StatefulWidget {
-  Menu({Key key}) : super(key: key);
+  Menu({Key? key}) : super(key: key);
 
   final TextStyle menuHeaderTextStyle = globals.menuHeaderTextStyle;
   final TextStyle menuHeaderUnderTextStyle = globals.menuHeaderUnderTextStyle;
@@ -98,7 +97,6 @@ class _MenuState extends State<Menu> {
                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                       child: Theme(
                         data: Theme.of(context).copyWith(
-                          accentColor: this.widget.languageTrailingIconColor,
                           unselectedWidgetColor:
                               this.widget.languageTrailingIconColor,
                         ),
@@ -133,7 +131,6 @@ class _MenuState extends State<Menu> {
                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                       child: Theme(
                         data: Theme.of(context).copyWith(
-                          accentColor: this.widget.languageTrailingIconColor,
                           unselectedWidgetColor:
                               this.widget.languageTrailingIconColor,
                         ),
@@ -168,7 +165,6 @@ class _MenuState extends State<Menu> {
                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                       child: Theme(
                         data: Theme.of(context).copyWith(
-                          accentColor: this.widget.languageTrailingIconColor,
                           unselectedWidgetColor:
                               this.widget.languageTrailingIconColor,
                         ),
@@ -200,7 +196,6 @@ class _MenuState extends State<Menu> {
                     padding: EdgeInsets.symmetric(horizontal: 0.0),
                     child: Theme(
                       data: Theme.of(context).copyWith(
-                        accentColor: this.widget.languageTrailingIconColor,
                         unselectedWidgetColor:
                             this.widget.languageTrailingIconColor,
                       ),
@@ -225,7 +220,6 @@ class _MenuState extends State<Menu> {
                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                       child: Theme(
                         data: Theme.of(context).copyWith(
-                          accentColor: this.widget.languageTrailingIconColor,
                           unselectedWidgetColor:
                               this.widget.languageTrailingIconColor,
                         ),
@@ -261,7 +255,6 @@ class _MenuState extends State<Menu> {
                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                       child: Theme(
                         data: Theme.of(context).copyWith(
-                          accentColor: this.widget.languageTrailingIconColor,
                           unselectedWidgetColor:
                               this.widget.languageTrailingIconColor,
                         ),
@@ -283,7 +276,7 @@ class _MenuState extends State<Menu> {
                         ),
                       ),
                     ),
-                    onTap: this.logoutAction,
+                    onTap: () => FirebaseAuth.instance.signOut(),
                   ),
                 ),
               ),

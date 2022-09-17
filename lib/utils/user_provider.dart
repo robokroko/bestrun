@@ -1,5 +1,5 @@
 class UserProvider {
-  int userId;
+  int? userId;
 
   static final UserProvider _instance = UserProvider._internal();
 

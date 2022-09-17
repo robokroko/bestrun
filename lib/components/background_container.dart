@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 class BackgroundContainer extends StatelessWidget {
   BackgroundContainer(
-      {@required this.imagePath, this.child, this.boxFit = BoxFit.fill});
+      {required this.imagePath,
+      required this.child,
+      this.boxFit = BoxFit.fill});
 
   final String imagePath;
   final Widget child;

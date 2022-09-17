@@ -3,14 +3,14 @@ import 'package:bestrun/models/profile_model.dart';
 import 'package:bestrun/utils/globals.dart' as globals;
 
 class UserProfileScreen extends StatefulWidget {
-  UserProfileScreen({Key key}) : super(key: key);
+  UserProfileScreen({Key? key}) : super(key: key);
 
   @override
   _UserProfileScreenState createState() => _UserProfileScreenState();
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
-  Profile profile;
+  Profile? profile;
 
   @override
   void initState() {
@@ -34,7 +34,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       .animate(animation),
             ),
             child: HeaderSection(
-              profile: profile,
+              profile: profile!,
             ),
           ),
           SizedBox(height: 40),
@@ -58,10 +58,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 }
 
 class HeaderSection extends StatelessWidget {
-  final Profile profile;
+  final Profile? profile;
   HeaderSection({
     this.profile,
-    Key key,
+    Key? key,
   });
 
   @override
@@ -73,7 +73,7 @@ class HeaderSection extends StatelessWidget {
           Container(
             alignment: Alignment.center,
             child: Text(
-              this.profile.name,
+              this.profile?.name ?? '',
               textAlign: TextAlign.center,
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
             ),
@@ -83,46 +83,10 @@ class HeaderSection extends StatelessWidget {
             margin: EdgeInsets.symmetric(horizontal: 20),
             alignment: Alignment.center,
             child: Text(
-              profile.email,
+              this.profile?.email ?? '',
               textAlign: TextAlign.center,
             ),
           ),
-          SizedBox(height: 20),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Text(
-                      profile.height,
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    Text('Post')
-                  ],
-                ),
-                Column(
-                  children: <Widget>[
-                    Text(
-                      profile.weight,
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    Text('Followers')
-                  ],
-                ),
-                Column(
-                  children: <Widget>[
-                    Text(
-                      profile.dateOfBirth,
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    Text('Following')
-                  ],
-                )
-              ],
-            ),
-          )
         ],
       ),
     );

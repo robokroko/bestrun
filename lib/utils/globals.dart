@@ -67,9 +67,6 @@ class ProfileData {
     Profile(
       name: 'Teszt Jakab',
       email: 'tesztmail@gmail.com',
-      weight: '78 kg',
-      height: '175 cm',
-      dateOfBirth: '1990.09.09',
     ),
   ];
 }
