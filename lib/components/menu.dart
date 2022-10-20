@@ -1,3 +1,4 @@
+import 'package:bestrun/utils/authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bestrun/utils/globals.dart' as globals;
@@ -9,8 +10,7 @@ class Menu extends StatefulWidget {
   final TextStyle menuHeaderTextStyle = globals.menuHeaderTextStyle;
   final TextStyle menuHeaderUnderTextStyle = globals.menuHeaderUnderTextStyle;
   final TextStyle menuTextStyle = globals.menuTextStyle;
-  final String menuHeaderText = 'Gipsz Jakab';
-  final String menuHeaderUnderText = 'gipszjakab@bestrun.hu';
+
   final String listTitle1 = 'menu.profile'.tr();
   final String listTitle2 = 'menu.activity'.tr();
   final String listTitle3 = 'menu.tagwrite'.tr();
@@ -22,6 +22,7 @@ class Menu extends StatefulWidget {
   final Color defaultTextColor = Colors.white;
   final Color selectedLangBackgroundColor = globals.bestRunGreen;
   final Color splashColor = globals.bestRunGreen;
+  final User? user = Authentication().currentUser;
 
   @override
   _MenuState createState() => _MenuState();
@@ -68,7 +69,7 @@ class _MenuState extends State<Menu> {
                               Row(
                                 children: [
                                   Text(
-                                    this.widget.menuHeaderText,
+                                    this.widget.user!.email!,
                                     style: this.widget.menuHeaderTextStyle,
                                   ),
                                 ],
@@ -76,7 +77,7 @@ class _MenuState extends State<Menu> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 4.0),
                                 child: Text(
-                                  this.widget.menuHeaderUnderText,
+                                  this.widget.user!.email!,
                                   style: this.widget.menuHeaderUnderTextStyle,
                                 ),
                               ),
@@ -276,7 +277,7 @@ class _MenuState extends State<Menu> {
                         ),
                       ),
                     ),
-                    onTap: () => FirebaseAuth.instance.signOut(),
+                    onTap: () => signOut(),
                   ),
                 ),
               ),
@@ -319,8 +320,8 @@ class _MenuState extends State<Menu> {
     return list;
   }
 
-  void logoutAction() {
-    Navigator.pushReplacementNamed(context, '/login');
+  Future<void> signOut() async {
+    await Authentication().signOut();
   }
 
   void goToAboutScreen() {

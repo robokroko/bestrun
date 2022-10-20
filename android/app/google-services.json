@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "483623020982",
+    "firebase_url": "https://bestrun-af54c-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "bestrun-af54c",
     "storage_bucket": "bestrun-af54c.appspot.com"
   },
@@ -29,6 +30,13 @@
             {
               "client_id": "483623020982-ehp2s2e0q8l2c8434d44673sbkilcnkd.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "483623020982-ak86fim2udshmvt2mt1c3kn8i1mm4paa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.betsrun"
+              }
             }
           ]
         }

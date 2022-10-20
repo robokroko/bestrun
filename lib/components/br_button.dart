@@ -121,24 +121,17 @@ class _BRButtonState extends State<BRButton> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(25.0),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: widget.shadowColor ?? Colors.grey.shade300,
-              spreadRadius: 8,
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            )
-          ]),
+        borderRadius: const BorderRadius.all(
+          Radius.circular(2.0),
+        ),
+      ),
       child: MaterialButton(
         child: widget.child,
         padding: widget.padding ??
             const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
         minWidth: widget.width ?? 135.0,
         height: widget.height ?? 55.0,
-        color: widget.backgroundColor ?? Theme.of(context).colorScheme.primary,
+        color: widget.backgroundColor ?? Colors.amber,
         disabledTextColor: disabledColor,
         elevation: widget.elevation,
         textColor: Colors.white,

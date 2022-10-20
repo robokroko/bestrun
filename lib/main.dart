@@ -1,11 +1,10 @@
 import 'package:bestrun/firebase_options.dart';
 import 'package:bestrun/screens/activity_screen.dart';
 import 'package:bestrun/screens/login_screen.dart';
+import 'package:bestrun/utils/authentication.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'screens/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'screens/activity_screen.dart';
 import 'screens/about_screen.dart';
 import 'screens/my_activity_screen.dart';
 import 'screens/tagwrite_screen.dart';
@@ -48,7 +47,34 @@ class MyApp extends StatelessWidget {
         '/profile': (BuildContext context) => UserProfileScreen(),
         '/tagwrite': (BuildContext context) => TagWriteScreen(),
       },
-      home: MainPage(),
+      home: WidgetTree(),
+    );
+  }
+}
+
+class WidgetTree extends StatefulWidget {
+  const WidgetTree({Key? key}) : super(key: key);
+
+  @override
+  State<WidgetTree> createState() => _WidgetTreeState();
+}
+
+class _WidgetTreeState extends State<WidgetTree> {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: Authentication().authStateChanges,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Valami eltört..'));
+        } else if (snapshot.hasData) {
+          return ActivityScreen();
+        } else {
+          return LoginScreen();
+        }
+      },
     );
   }
 }
@@ -56,7 +82,7 @@ class MyApp extends StatelessWidget {
 class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
-      body: StreamBuilder<User?>(
+        body: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -68,5 +94,7 @@ class MainPage extends StatelessWidget {
             } else {
               return LoginScreen();
             }
-          }));
+          },
+        ),
+      );
 }

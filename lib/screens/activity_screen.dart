@@ -1,10 +1,13 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:math';
 import 'package:bestrun/components/BR_loading_modal.dart';
 import 'package:bestrun/components/appbar.dart';
+import 'package:bestrun/components/br_button.dart';
 import 'package:bestrun/components/br_popup_dialogs.dart';
+import 'package:bestrun/models/acvtivity_model.dart';
 import 'package:bestrun/models/lap.dart';
+import 'package:bestrun/utils/authentication.dart';
+import 'package:bestrun/utils/date_time_formatter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -15,6 +18,8 @@ import 'package:flutter/services.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:collection/collection.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'dart:convert';
 
 class ActivityScreen extends StatefulWidget {
   final String title = 'messageList.screenTitle'.tr();
@@ -30,28 +35,29 @@ class _ActivityScreenState extends State<ActivityScreen> {
   Location? _locationTracker = Location();
   Marker? runnerMarker;
   List<Marker> _markers = <Marker>[];
-  GoogleMapController? _controller;
+  GoogleMapController? _mapController;
   Set<Polyline>? _polylines = {};
   LocationData? lastLocation;
   // double distance = 0;
   ValueNotifier<double> distance = ValueNotifier<double>(0);
   bool isActivityInProgress = false;
+  bool isSaveButtonVisible = false;
   ValueNotifier<dynamic> nfcResult = ValueNotifier(null);
   List<int> rawTimes = [];
+  List<String> lapStringTimes = [];
   List<Lap> laps = [];
   List<double> distances = [];
+  final User? user = Authentication().currentUser;
+  final fb = FirebaseDatabase.instance;
+  DateTime now = DateTime.now();
+  Activity _activity = Activity(checkpoints: []);
+  var _activityJson;
 
   final _isHours = true;
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
     isLapHours: true,
-
-    /* onChange: (value) => print('onChange $value'),
-    onChangeRawSecond: (value) => print('onChangeRawSecond $value'),
-    onChangeRawMinute: (value) => print('onChangeRawMinute $value'),*/
   );
   final _scrollController = ScrollController();
-
-  //void _onMapCreated(GoogleMapController _cntlr) {}
 
   static final CameraPosition initialLocation = CameraPosition(
     target: LatLng(46.23872780172595, 20.140179885694906),
@@ -107,6 +113,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
         ),
       );
       _stopWatchTimer.onExecute.add(StopWatchExecute.lap);
+      lapStringTimes
+          .add(StopWatchTimer.getDisplayTime(_stopWatchTimer.rawTime.value));
       rawTimes.add(_stopWatchTimer.rawTime.value);
       distances.add(distance.value);
     }
@@ -125,8 +133,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
       _locationSubscription =
           _locationTracker?.onLocationChanged.listen((newLocalData) {
-        if (_controller != null) {
-          _controller?.animateCamera(
+        if (_mapController != null) {
+          _mapController?.animateCamera(
             CameraUpdate.newCameraPosition(
               new CameraPosition(
                   bearing: 0.0,
@@ -225,11 +233,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
     });
   }
 
-  void makeLapsList() {
+  void makeLapList() {
     for (var i = 0; i < distances.length; i++) {
       laps.add(new Lap(
         distance: distances[i],
-        time: rawTimes[i],
+        time: lapStringTimes[i],
       ));
     }
     debugPrint(laps.toString());
@@ -238,21 +246,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
   @override
   void initState() {
     getCurrentLocation();
+    BRLoadingDialog.hide(context);
     super.initState();
-    //  _stopWatchTimer.rawTime.listen((value) =>
-    //     print('rawTime $value ${StopWatchTimer.getDisplayTime(value)}'));
-    //  _stopWatchTimer.minuteTime.listen((value) => print('minuteTime $value'));
-    ////  _stopWatchTimer.secondTime.listen((value) => print('secondTime $value'));
-    //  _stopWatchTimer.records.listen((value) => print('records $value'));
-  }
-
-  @override
-  void dispose() async {
-    if (_locationSubscription != null) {
-      _locationSubscription?.cancel(); //TODO - nullcheck is good?
-    }
-    super.dispose();
-    await _stopWatchTimer.dispose();
   }
 
   @override
@@ -276,7 +271,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                       (runnerMarker != null) ? [runnerMarker!] + _markers : []),
                   polylines: _polylines!,
                   onMapCreated: (GoogleMapController controller) {
-                    _controller = controller;
+                    _mapController = controller;
                   },
                 ),
               ),
@@ -430,7 +425,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: ElevatedButton(
+                child: BRButton(
+                  backgroundColor: Colors.green,
                   onPressed: () async {
                     _stopWatchTimer.onExecute.add(StopWatchExecute.start);
                     setState(() {
@@ -446,11 +442,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: ElevatedButton(
+                child: BRButton(
                   onPressed: () async {
                     _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
                     setState(() {
                       isActivityInProgress = false;
+                      isSaveButtonVisible = true;
                     });
                     NfcManager.instance.stopSession();
                   },
@@ -462,17 +459,41 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
             ],
           ),
-          if (isActivityInProgress == false)
+          if (isActivityInProgress == false && isSaveButtonVisible)
             Flexible(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ElevatedButton(
-                      onPressed: () async {},
+                    child: BRButton(
+                      backgroundColor: Colors.blue.shade300,
+                      onPressed: () async {
+                        saveSassion();
+                      },
                       child: const Text(
                         'Save',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (isActivityInProgress && isSaveButtonVisible == false)
+            Flexible(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: BRButton(
+                      backgroundColor: Colors.red.shade400,
+                      onPressed: () async {
+                        cancelActivity();
+                      },
+                      child: const Text(
+                        'Cancel',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -486,21 +507,76 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   void saveSassion() async {
+    makeLapList();
+    if (laps.isNotEmpty) {
+      final ref =
+          fb.ref().child('activities').child(Authentication().currentUser!.uid);
+      var result = await BRPopUpDialogs.openConfirmDialog(
+          context: context, message: 'Are you sure to finish this activity?');
+      NfcManager.instance.stopSession();
+      if (result) {
+        BRLoadingDialog.show(context: context, title: 'Loading');
+        _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+        await ref.push().set(await addDataToActivity());
+        removePolylines();
+        removeCheckPointMarkers();
+        setState(() {
+          isActivityInProgress = false;
+          isSaveButtonVisible = false;
+          laps = [];
+          distance.value = 0;
+          distances.clear();
+        });
+        BRLoadingDialog.hide(context);
+      }
+    } else {
+      BRPopUpDialogs.openConfirmDialog(
+          context: context,
+          message:
+              'You can not save activity, because you havent reach any checkpoint yet!');
+    }
+  }
+
+  addDataToActivity() async {
+    final uin8list = await _mapController!.takeSnapshot();
+    String snap = base64Encode(uin8list!);
+    _activity.date =
+        DateTimeFormatter.formatDateTime(DateTime.now()).toString();
+    _activity.time = laps.last.time!.toString();
+    _activity.distance = distances.last;
+    _activity.checkpoints = laps;
+    _activity.average = (distances.last % (rawTimes.last * 3600000)).toString();
+    _activity.imageCode = snap;
+    _activityJson = _activity.toJson();
+    return _activityJson;
+  }
+
+  void cancelActivity() async {
     var result = await BRPopUpDialogs.openConfirmDialog(
-        context: context, message: 'Biztos, hogy elmenti a ');
+        context: context, message: 'Are you sure to cancel this activity?');
     NfcManager.instance.stopSession();
     if (result) {
+      BRLoadingDialog.show(context: context, title: 'Loadin');
       _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
-
       removePolylines();
       removeCheckPointMarkers();
-      makeLapsList();
       setState(() {
         isActivityInProgress = false;
+        isSaveButtonVisible = false;
+        laps = [];
         distance.value = 0;
         distances.clear();
       });
-      
+      BRLoadingDialog.hide(context);
     }
+  }
+
+  @override
+  void dispose() async {
+    if (_locationSubscription != null) {
+      _locationSubscription?.cancel(); //TODO - nullcheck is good?
+    }
+    super.dispose();
+    await _stopWatchTimer.dispose();
   }
 }

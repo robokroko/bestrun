@@ -1,18 +1,39 @@
 import 'package:bestrun/models/lap.dart';
 
-class MyActivityListItem {
-  final String? date;
-  final String? time;
-  final String? distance;
-  final String? numberOfCheckPoints;
-  final List<Lap>? checkpoints;
-  final double? average;
+class Activity {
+  String? date;
+  String? time;
+  double? distance;
+  List<Lap> checkpoints;
+  String? average;
+  String? imageCode;
 
-  MyActivityListItem(
+  Activity(
       {this.date,
       this.time,
       this.distance,
-      this.numberOfCheckPoints,
-      this.checkpoints,
-      this.average});
+      required this.checkpoints,
+      this.average,
+      this.imageCode});
+
+  factory Activity.fromJson(Map<String, dynamic> json) {
+    return Activity(
+      date: json['date'],
+      time: json['time'],
+      distance: json['distance'] == 0 ? 0.0 : json['distance'],
+      checkpoints:
+          List<Lap>.from(json["checkpoints"].map((lap) => Lap.fromJson(lap))),
+      average: json['average'],
+      imageCode: json['imageCode'],
+    );
+  }
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'date': date,
+        'time': time,
+        'distance': distance,
+        'checkpoints':
+            List<dynamic>.from(checkpoints.map((lap) => lap.toJson())),
+        'average': average,
+        'imageCode': imageCode,
+      };
 }
