@@ -257,7 +257,7 @@ class BRPopUpDialogs {
                       child: Center(
                         child: BRButton(
                           child: Text(
-                            'button.ok'.tr().toUpperCase(),
+                            'OK'.tr().toUpperCase(),
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 17.0),
                           ),
@@ -297,7 +297,7 @@ class BRPopUpDialogs {
         BRButton.cancelButton(context: context),
         BRButton(
           child: Text(
-            'button.ok'.tr().toUpperCase(),
+            'OK'.tr().toUpperCase(),
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17.0),
           ),
           onPressed: () => Navigator.pop(context, true),

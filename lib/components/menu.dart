@@ -11,17 +11,11 @@ class Menu extends StatefulWidget {
   final TextStyle menuHeaderUnderTextStyle = globals.menuHeaderUnderTextStyle;
   final TextStyle menuTextStyle = globals.menuTextStyle;
 
-  final String listTitle1 = 'menu.profile'.tr();
-  final String listTitle2 = 'menu.activity'.tr();
-  final String listTitle3 = 'menu.tagwrite'.tr();
-  final String listTitle5 = 'menu.about'.tr();
-  final String listTitle6 = 'menu.logout'.tr();
-  final String languageListTitle = 'menu.language'.tr();
   final String imagePathMember = 'assets/images/person.png';
   final Color languageTrailingIconColor = Colors.white;
   final Color defaultTextColor = Colors.white;
-  final Color selectedLangBackgroundColor = globals.bestRunGreen;
-  final Color splashColor = globals.bestRunGreen;
+  final Color selectedLangBackgroundColor = Colors.amber;
+  final Color splashColor = Colors.amber;
   final User? user = Authentication().currentUser;
 
   @override
@@ -45,8 +39,7 @@ class _MenuState extends State<Menu> {
                     height: 80.0,
                     decoration: BoxDecoration(
                       border: Border(
-                        bottom:
-                            BorderSide(color: globals.bestRunGreen, width: 2.0),
+                        bottom: BorderSide(color: Colors.amber, width: 2.0),
                       ),
                     ),
                     child: Row(
@@ -93,7 +86,7 @@ class _MenuState extends State<Menu> {
                 title: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    splashColor: globals.bestRunGreen,
+                    splashColor: Colors.amber,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                       child: Theme(
@@ -105,41 +98,7 @@ class _MenuState extends State<Menu> {
                           title: Row(
                             children: [
                               Text(
-                                this.widget.listTitle1,
-                                style: this.widget.menuTextStyle,
-                              ),
-                              Spacer(),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                color: Colors.white,
-                                size: 14.0,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    onTap: this.goToProfileScreen,
-                  ),
-                ),
-              ),
-              ListTile(
-                title: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    splashColor: globals.bestRunGreen,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 0.0),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(
-                          unselectedWidgetColor:
-                              this.widget.languageTrailingIconColor,
-                        ),
-                        child: ListTile(
-                          title: Row(
-                            children: [
-                              Text(
-                                this.widget.listTitle2,
+                                'Activities',
                                 style: this.widget.menuTextStyle,
                               ),
                               Spacer(),
@@ -161,7 +120,7 @@ class _MenuState extends State<Menu> {
                 title: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    splashColor: globals.bestRunGreen,
+                    splashColor: Colors.amber,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                       child: Theme(
@@ -173,7 +132,7 @@ class _MenuState extends State<Menu> {
                           title: Row(
                             children: [
                               Text(
-                                this.widget.listTitle3,
+                                'Write to tag',
                                 style: this.widget.menuTextStyle,
                               ),
                               Spacer(),
@@ -191,32 +150,11 @@ class _MenuState extends State<Menu> {
                   ),
                 ),
               ),
-              Container(
-                child: ListTile(
-                  title: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0.0),
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        unselectedWidgetColor:
-                            this.widget.languageTrailingIconColor,
-                      ),
-                      child: ExpansionTile(
-                        expandedCrossAxisAlignment: CrossAxisAlignment.center,
-                        title: Text(
-                          this.widget.languageListTitle,
-                          style: this.widget.menuTextStyle,
-                        ),
-                        children: _getSupportedLocales(context),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
               ListTile(
                 title: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    splashColor: globals.bestRunGreen,
+                    splashColor: Colors.amber,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                       child: Theme(
@@ -228,7 +166,7 @@ class _MenuState extends State<Menu> {
                           title: Row(
                             children: [
                               Text(
-                                this.widget.listTitle5,
+                                'About',
                                 style: this.widget.menuTextStyle,
                               ),
                               Spacer(),
@@ -251,7 +189,7 @@ class _MenuState extends State<Menu> {
                 title: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    splashColor: globals.bestRunGreen,
+                    splashColor: Colors.amber,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 0.0),
                       child: Theme(
@@ -263,7 +201,7 @@ class _MenuState extends State<Menu> {
                           title: Row(
                             children: [
                               Text(
-                                this.widget.listTitle6,
+                                'Log out',
                                 style: this.widget.menuTextStyle,
                               ),
                               Spacer(),
@@ -334,9 +272,5 @@ class _MenuState extends State<Menu> {
 
   void goToTagWriteScreen() {
     Navigator.pushNamed(context, '/tagwrite');
-  }
-
-  void goToProfileScreen() {
-    Navigator.pushNamed(context, '/profile');
   }
 }

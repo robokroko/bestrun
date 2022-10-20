@@ -51,9 +51,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Text(
-                          'login.usernameLabelNew'.tr(),
+                          'Email'.tr(),
                           style: const TextStyle(
-                              fontSize: 14.0, fontWeight: FontWeight.bold),
+                            color: Colors.white,
+                            fontSize: 14.0,
+                          ),
                         ),
                       ),
                       Material(
@@ -105,9 +107,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Text(
-                          'login.passwordLabelNew'.tr(),
+                          'Password'.tr(),
                           style: const TextStyle(
-                              fontSize: 14.0, fontWeight: FontWeight.bold),
+                            color: Colors.white,
+                            fontSize: 14.0,
+                          ),
                         ),
                       ),
                       Material(
@@ -160,9 +164,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: Text(
-                            'login.passwordLabelNewÚjra'.tr(),
+                            'Password again'.tr(),
                             style: const TextStyle(
-                                fontSize: 14.0, fontWeight: FontWeight.bold),
+                              color: Colors.white,
+                              fontSize: 14.0,
+                            ),
                           ),
                         ),
                       if (isLogin == false)
@@ -216,8 +222,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: Text(
                     isLogin
-                        ? 'register.button'.tr().toUpperCase()
-                        : 'login.button'.tr().toUpperCase(),
+                        ? 'Registration'.tr().toUpperCase()
+                        : 'Login'.tr().toUpperCase(),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 10.0,
@@ -234,9 +240,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           shadowColor: const Color.fromRGBO(10, 196, 112, 0.25),
                           elevation: 0,
                           child: Text(
-                            'login.loginBtn'.tr().toUpperCase(),
+                            'Login'.tr().toUpperCase(),
                             style: const TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
                                 fontSize: 17.0,
                                 fontWeight: FontWeight.bold),
                           ),
@@ -260,7 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     try {
-      BRLoadingDialog.show(context: context, title: 'betöltés');
+      BRLoadingDialog.show(context: context, title: 'Loadings');
       await Authentication().signInWithEmailAndPassword(
           email: usernameInputController.text,
           password: passwordInputController.text);

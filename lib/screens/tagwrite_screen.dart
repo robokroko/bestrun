@@ -1,4 +1,6 @@
 import 'package:bestrun/components/appbar.dart';
+import 'package:bestrun/components/br_button.dart';
+import 'package:bestrun/components/br_popup_dialogs.dart';
 import 'package:bestrun/utils/globals.dart' as globals;
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
@@ -31,9 +33,13 @@ class _TagWriteScreenState extends State<TagWriteScreen> {
         debugPrint('-----------------------------');
         debugPrint(
             'üzenet: ' + String.fromCharCodes(message.records.first.payload));
+        BRPopUpDialogs.openAlertDialog(
+            context: context, message: 'Successful tagwrite!');
         NfcManager.instance.stopSession();
       } catch (e) {
         result.value = e;
+        BRPopUpDialogs.openAlertDialog(
+            context: context, message: 'Unsuccess writing to tag!');
         NfcManager.instance.stopSession(errorMessage: result.value.toString());
         return;
       }
@@ -68,13 +74,11 @@ class _TagWriteScreenState extends State<TagWriteScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(0.0)),
-                      borderSide:
-                          BorderSide(width: 0.4, color: globals.bestRunGreen),
+                      borderSide: BorderSide(width: 0.4, color: Colors.amber),
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(0.0)),
-                      borderSide:
-                          BorderSide(width: 0.4, color: globals.bestRunGreen),
+                      borderSide: BorderSide(width: 0.4, color: Colors.amber),
                     ),
                   ),
                 ),
@@ -82,7 +86,7 @@ class _TagWriteScreenState extends State<TagWriteScreen> {
             ),
           ),
           Center(
-            child: ElevatedButton(
+            child: BRButton(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -92,7 +96,7 @@ class _TagWriteScreenState extends State<TagWriteScreen> {
                       "Write to tag",
                       style: TextStyle(
                         fontSize: 20,
-                        color: Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.black,
                       ),
                     ),
                   )

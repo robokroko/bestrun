@@ -459,11 +459,27 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
             ],
           ),
-          if (isActivityInProgress == false && isSaveButtonVisible)
-            Flexible(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: BRButton(
+                    backgroundColor: Colors.red.shade400,
+                    onPressed: () async {
+                      if (isActivityInProgress) {
+                        cancelActivity();
+                      }
+                    },
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                if (isActivityInProgress == false && isSaveButtonVisible)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: BRButton(
@@ -477,30 +493,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
                       ),
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
-          if (isActivityInProgress && isSaveButtonVisible == false)
-            Flexible(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: BRButton(
-                      backgroundColor: Colors.red.shade400,
-                      onPressed: () async {
-                        cancelActivity();
-                      },
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          )
         ],
       ),
     );

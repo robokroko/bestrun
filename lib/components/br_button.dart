@@ -35,7 +35,7 @@ class BRButton extends StatefulWidget {
       {required BuildContext context, Function? beforeCancel}) {
     return BRButton(
       child: Text(
-        'button.cancel'.tr().toUpperCase(),
+        'Cancel'.tr().toUpperCase(),
         style: const TextStyle(
           fontSize: 17.0,
           fontWeight: FontWeight.bold,
@@ -46,8 +46,8 @@ class BRButton extends StatefulWidget {
         if (beforeCancel != null) beforeCancel();
         Navigator.pop(context, false);
       },
-      borderColor: Colors.white,
-      backgroundColor: Colors.white,
+      borderColor: Colors.grey,
+      backgroundColor: Colors.grey,
       elevation: 0.0,
     );
   }
@@ -63,7 +63,7 @@ class BRButton extends StatefulWidget {
             child: Icon(Icons.arrow_back_sharp, color: Colors.black),
           ),
           Text(
-            'login.backBtn'.tr().toUpperCase(),
+            'Back'.tr().toUpperCase(),
             style: const TextStyle(
                 color: Colors.black,
                 fontSize: 17.0,
@@ -75,8 +75,8 @@ class BRButton extends StatefulWidget {
         if (beforeCancel != null) beforeCancel();
         Navigator.pop(context, false);
       },
-      borderColor: Colors.white,
-      backgroundColor: Colors.white,
+      borderColor: Colors.grey,
+      backgroundColor: Colors.grey,
       elevation: 3.0,
     );
   }
@@ -90,7 +90,7 @@ class BRButton extends StatefulWidget {
           Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: Text(
-              'login.nextBtn'.tr().toUpperCase(),
+              'Next'.tr().toUpperCase(),
               style: const TextStyle(
                   color: Colors.white,
                   fontSize: 17.0,
@@ -104,7 +104,7 @@ class BRButton extends StatefulWidget {
         ],
       ),
       onPressed: onPressed,
-      backgroundColor: const Color(0xFF0AC470),
+      backgroundColor: Colors.amber,
       elevation: 3.0,
     );
   }
@@ -122,7 +122,7 @@ class _BRButtonState extends State<BRButton> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(
-          Radius.circular(2.0),
+          Radius.circular(0.5),
         ),
       ),
       child: MaterialButton(
@@ -139,7 +139,7 @@ class _BRButtonState extends State<BRButton> {
             ? Theme.of(context).colorScheme.primary
             : Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50.0),
+          borderRadius: BorderRadius.circular(14.0),
           side: BorderSide(
               width: 1.0,
               color: widget.isEnabled

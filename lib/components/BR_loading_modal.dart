@@ -7,7 +7,7 @@ class BRLoadingDialog {
   /// Use BRLoadingDialog.hide() to dismiss it.
   static void show({required BuildContext context, required String title}) {
     if (!BRLoadingDialog.isShown) {
-      final Color loadingCircleColor = Theme.of(context).colorScheme.secondary;
+      final Color loadingCircleColor = Colors.amber;
       const Color barrierColor = Colors.black54;
       const Color headerBackgroundColor = Color(0xFFE7EDF4);
       const Color dividerColor = Color(0xFFF4F7FA);
@@ -51,7 +51,7 @@ class BRLoadingDialog {
                                     .textTheme
                                     .headline6!
                                     .fontSize,
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Colors.amber,
                               ),
                             ),
                           ),
