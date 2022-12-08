@@ -8,6 +8,9 @@ import 'package:bestrun/models/acvtivity_model.dart';
 import 'package:bestrun/models/lap.dart';
 import 'package:bestrun/utils/authentication.dart';
 import 'package:bestrun/utils/date_time_formatter.dart';
+import 'package:bestrun/utils/ecryption.dart';
+import 'package:bestrun/utils/weather.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -30,7 +33,6 @@ class ActivityScreen extends StatefulWidget {
 }
 
 class _ActivityScreenState extends State<ActivityScreen> {
-  //map variable
   StreamSubscription? _locationSubscription;
   Location? _locationTracker = Location();
   Marker? runnerMarker;
@@ -38,9 +40,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
   GoogleMapController? _mapController;
   Set<Polyline>? _polylines = {};
   LocationData? lastLocation;
-  // double distance = 0;
   ValueNotifier<double> distance = ValueNotifier<double>(0);
   bool isActivityInProgress = false;
+  bool isActivityIsPaused = false;
+  bool isRaceStarted = false;
   bool isSaveButtonVisible = false;
   ValueNotifier<dynamic> nfcResult = ValueNotifier(null);
   List<int> rawTimes = [];
@@ -52,13 +55,17 @@ class _ActivityScreenState extends State<ActivityScreen> {
   DateTime now = DateTime.now();
   Activity _activity = Activity(checkpoints: []);
   var _activityJson;
-
+  String raceName = '';
+  List<String> tagList = [];
   final _isHours = true;
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
     isLapHours: true,
   );
   final _scrollController = ScrollController();
-
+  Weather weather = Weather();
+  int temperature = 0;
+  String weatherIcon = 'sun';
+  String weatherCondition = '';
   static final CameraPosition initialLocation = CameraPosition(
     target: LatLng(46.23872780172595, 20.140179885694906),
     zoom: 14.4746,
@@ -76,7 +83,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     return byteData.buffer.asUint8List();
   }
 
-  void updateMarker(LocationData newLocalData, Uint8List imageData) {
+  void updateRunnerMarker(LocationData newLocalData, Uint8List imageData) {
     LatLng latlng = LatLng(newLocalData.latitude!, newLocalData.longitude!);
     this.setState(() {
       runnerMarker = Marker(
@@ -125,7 +132,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
       Uint8List imageData = await getMarkerRunnerMarker();
       var location = await _locationTracker?.getLocation();
 
-      updateMarker(location!, imageData);
+      var weatherData = await weather.getWeatherFromLocation(location!);
+      updateWeather(weatherData);
+
+      updateRunnerMarker(location, imageData);
 
       if (_locationSubscription != null) {
         _locationSubscription?.cancel();
@@ -144,7 +154,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   zoom: 18.00),
             ),
           );
-          updateMarker(newLocalData, imageData);
+          updateRunnerMarker(newLocalData, imageData);
 
           if (lastLocation != null && isActivityInProgress == true) {
             createPolyline(newLocalData);
@@ -166,7 +176,26 @@ class _ActivityScreenState extends State<ActivityScreen> {
     }
   }
 
-  createPolyline(LocationData newLocalData) {
+  void updateWeather(dynamic weatherData) {
+    setState(() {
+      if (weatherData == null) {
+        temperature = 0;
+        weatherIcon = 'No info';
+        weatherCondition = '';
+        return;
+      }
+
+      var temp = weatherData['main']['temp'];
+      temperature = temp.toInt();
+
+      var condition = weatherData['weather'][0]['id'];
+      weatherIcon = weather.getWeatherIcon(condition);
+
+      weatherCondition = weatherData['weather'][0]['main'];
+    });
+  }
+
+  void createPolyline(LocationData newLocalData) {
     setState(() {
       _polylines?.add(
         Polyline(
@@ -203,12 +232,19 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   double calculateDistance(lat1, lon1, lat2, lon2) {
-    var p = 0.017453292519943295;
-    var c = cos;
-    var a = 0.5 -
-        c((lat2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-    return 12742 * asin(sqrt(a));
+    double toRadians(double degree) {
+      return degree * pi / 180;
+    }
+
+    final r = 6372.8;
+    lat1 = toRadians(lat1);
+    lat2 = toRadians(lat2);
+    double dLat = toRadians(lat2 - lat1);
+    double dLon = toRadians(lon2 - lon1);
+    double a =
+        pow(sin(dLat / 2), 2) + pow(sin(dLon / 2), 2) * cos(lat1) * cos(lat2);
+    double c = 2 * asin(sqrt(a));
+    return r * c;
   }
 
   void _startTagReadSession() {
@@ -227,10 +263,71 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
         String tagRecordText = String.fromCharCodes(sub);
         debugPrint('---------TAGRECORD-------------');
-        debugPrint(tagRecordText);
-        addCheckPointMarker(tagRecordText);
+
+        var decryptedTagrecordtext =
+            decrypt(Encrypted.fromBase64(tagRecordText));
+        debugPrint(decryptedTagrecordtext);
+        String? result = tagList
+            .firstWhereOrNull((element) => element == decryptedTagrecordtext);
+        if (result == null) {
+          await BRPopUpDialogs.openAlertDialog(
+              context: context,
+              message:
+                  'Such a TAG is not among those registered or has already been registered before');
+        } else {
+          tagList.remove(result);
+          addCheckPointMarker(tagRecordText);
+          if (tagList.isEmpty) {
+            saveSassion();
+          }
+        }
       }
     });
+  }
+
+  void _startTagReadSessionForAddNewRace() {
+    NfcManager.instance.startSession(
+      onDiscovered: (NfcTag tag) async {
+        final ndef = Ndef.from(tag);
+
+        if (ndef!.cachedMessage!.records.isEmpty ||
+            ndef.cachedMessage!.records[0].payload.length == 0) {
+          await BRPopUpDialogs.openAlertDialog(
+              context: context,
+              message: 'A tag nem tartalmaz kiolvasható adatot!');
+        } else {
+          Uint8List payload =
+              Uint8List.fromList(ndef.cachedMessage!.records[0].payload);
+          Uint8List sub = payload.sublist(payload[0] + 1);
+
+          String tagRecordText = String.fromCharCodes(sub);
+          debugPrint('---------TAGRECORD-------------');
+          debugPrint(tagRecordText);
+          var decryptedTagrecordtext =
+              decrypt(Encrypted.fromBase64(tagRecordText));
+          debugPrint(decrypt(Encrypted.fromBase64(tagRecordText)));
+          final splitted = decryptedTagrecordtext.split('#');
+          debugPrint(splitted.toString());
+          if (splitted.length != 4 || splitted[0] != 'start') {
+            await BRPopUpDialogs.openAlertDialog(
+                context: context, message: 'This is not a race info tag!');
+          } else {
+            int? tagNumber = int.tryParse(splitted[1]);
+            for (int i = 1; i < tagNumber! + 1; i++) {
+              tagList.add(i.toString() + '#' + splitted[2]);
+            }
+            debugPrint(tagList.toString());
+            await BRPopUpDialogs.openAlertDialog(
+                context: context, message: 'Race added successfully');
+            NfcManager.instance.stopSession();
+            setState(() {
+              isRaceStarted = true;
+              raceName = splitted[3];
+            });
+          }
+        }
+      },
+    );
   }
 
   void makeLapList() {
@@ -258,12 +355,13 @@ class _ActivityScreenState extends State<ActivityScreen> {
       drawerEdgeDragWidth: 0,
       endDrawer: Menu(),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Stack(
             children: [
               SizedBox(
                 width: MediaQuery.of(context).size.width,
-                height: 300,
+                height: 220,
                 child: GoogleMap(
                   mapType: MapType.normal,
                   initialCameraPosition: initialLocation,
@@ -276,10 +374,47 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 ),
               ),
               FloatingActionButton(
-                  child: Icon(Icons.location_searching),
+                  backgroundColor: Colors.amber,
+                  child: Icon(Icons.location_searching, color: Colors.black),
+                  mini: true,
                   onPressed: () {
                     getCurrentLocation();
                   }),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  raceName + ' - ',
+                  style: const TextStyle(
+                      color: Colors.amber,
+                      fontSize: 17,
+                      fontFamily: 'Helvetica',
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0, left: 4.0),
+                child: Image.asset(
+                  'assets/images/$weatherIcon.png',
+                  height: 25,
+                  color: Colors.amber,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  ' $temperature C° $weatherCondition',
+                  style: const TextStyle(
+                      color: Colors.amber,
+                      fontSize: 17,
+                      fontFamily: 'Helvetica',
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
             ],
           ),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
@@ -295,7 +430,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(top: 14),
+                          padding: const EdgeInsets.only(top: 10),
                           child: StatefulBuilder(builder: (context, setState) {
                             return Text(
                               displayTime,
@@ -417,85 +552,108 @@ class _ActivityScreenState extends State<ActivityScreen> {
               },
             ),
           ),
-
           //bottons
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: BRButton(
-                  backgroundColor: Colors.green,
-                  onPressed: () async {
-                    _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-                    setState(() {
-                      isActivityInProgress = true;
-                    });
-                    _startTagReadSession();
-                  },
-                  child: const Text(
-                    'Start',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: BRButton(
-                  onPressed: () async {
-                    _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
-                    setState(() {
-                      isActivityInProgress = false;
-                      isSaveButtonVisible = true;
-                    });
-                    NfcManager.instance.stopSession();
-                  },
-                  child: const Text(
-                    'Pause',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          if (!isRaceStarted)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: BRButton(
-                    backgroundColor: Colors.red.shade400,
+                    backgroundColor: Colors.green,
                     onPressed: () async {
-                      if (isActivityInProgress) {
-                        cancelActivity();
-                      }
+                      _startTagReadSessionForAddNewRace();
                     },
                     child: const Text(
-                      'Cancel',
+                      'Add New Race',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
-                if (isActivityInProgress == false && isSaveButtonVisible)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: BRButton(
-                      backgroundColor: Colors.blue.shade300,
-                      onPressed: () async {
-                        saveSassion();
-                      },
-                      child: const Text(
-                        'Save',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
               ],
             ),
-          )
+          if (isRaceStarted)
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: BRButton(
+                        backgroundColor: Colors.green,
+                        onPressed: () async {
+                          _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+                          setState(() {
+                            isActivityInProgress = true;
+                            isActivityIsPaused = false;
+                          });
+                          _startTagReadSession();
+                        },
+                        child: const Text(
+                          'Start',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: BRButton(
+                        onPressed: () async {
+                          _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
+                          setState(() {
+                            isActivityInProgress = false;
+                            isActivityIsPaused = true;
+                            isSaveButtonVisible = true;
+                          });
+                          NfcManager.instance.stopSession();
+                        },
+                        child: const Text(
+                          'Pause',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      if (isActivityIsPaused)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: BRButton(
+                            backgroundColor: Colors.red.shade400,
+                            onPressed: () async {
+                              cancelActivity();
+                            },
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      if (isActivityInProgress == false && isSaveButtonVisible)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: BRButton(
+                            backgroundColor: Colors.blue.shade300,
+                            onPressed: () async {
+                              saveSassion();
+                            },
+                            child: const Text(
+                              'Save',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                )
+              ],
+            ),
         ],
       ),
     );
@@ -510,14 +668,20 @@ class _ActivityScreenState extends State<ActivityScreen> {
           context: context, message: 'Are you sure to finish this activity?');
       NfcManager.instance.stopSession();
       if (result) {
-        BRLoadingDialog.show(context: context, title: 'Loading');
+        //BRLoadingDialog.show(context: context, title: 'Loading');
+        var result1 = await BRPopUpDialogs.openConfirmDialog(
+            context: context, message: 'Are you sure to finish this activity?');
+        if (result) {}
         _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
         await ref.push().set(await addDataToActivity());
         removePolylines();
         removeCheckPointMarkers();
         setState(() {
           isActivityInProgress = false;
+          isActivityIsPaused = false;
           isSaveButtonVisible = false;
+          raceName = '';
+          isRaceStarted = false;
           laps = [];
           distance.value = 0;
           distances.clear();
@@ -541,6 +705,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
     _activity.distance = distances.last;
     _activity.checkpoints = laps;
     _activity.average = (distances.last % (rawTimes.last * 3600000)).toString();
+    _activity.activityName = raceName;
+    _activity.temperature = temperature;
+    _activity.weatherCondition = weatherCondition;
     _activity.imageCode = snap;
     _activityJson = _activity.toJson();
     return _activityJson;
@@ -557,10 +724,13 @@ class _ActivityScreenState extends State<ActivityScreen> {
       removeCheckPointMarkers();
       setState(() {
         isActivityInProgress = false;
+        isActivityIsPaused = false;
         isSaveButtonVisible = false;
         laps = [];
         distance.value = 0;
         distances.clear();
+        isRaceStarted = false;
+        raceName = '';
       });
       BRLoadingDialog.hide(context);
     }

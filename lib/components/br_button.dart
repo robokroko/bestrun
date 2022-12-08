@@ -81,34 +81,6 @@ class BRButton extends StatefulWidget {
     );
   }
 
-  /// Creates a BRButton with green color, next text and [onPressed] on tap.
-  factory BRButton.nextButton({required Function onPressed}) {
-    return BRButton(
-      shadowColor: const Color.fromRGBO(10, 196, 112, 0.30),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text(
-              'Next'.tr().toUpperCase(),
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 17.0,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(left: 8.0),
-            child: Icon(Icons.arrow_forward_sharp, color: Colors.white),
-          ),
-        ],
-      ),
-      onPressed: onPressed,
-      backgroundColor: Colors.amber,
-      elevation: 3.0,
-    );
-  }
-
   @override
   _BRButtonState createState() => _BRButtonState();
 }
@@ -130,7 +102,7 @@ class _BRButtonState extends State<BRButton> {
         padding: widget.padding ??
             const EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
         minWidth: widget.width ?? 135.0,
-        height: widget.height ?? 55.0,
+        height: widget.height ?? 40.0,
         color: widget.backgroundColor ?? Colors.amber,
         disabledTextColor: disabledColor,
         elevation: widget.elevation,
@@ -139,14 +111,11 @@ class _BRButtonState extends State<BRButton> {
             ? Theme.of(context).colorScheme.primary
             : Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14.0),
-          side: BorderSide(
+            borderRadius: BorderRadius.circular(14.0),
+            side: BorderSide(
               width: 1.0,
-              color: widget.isEnabled
-                  ? (widget.borderColor ??
-                      Theme.of(context).colorScheme.primary)
-                  : disabledColor),
-        ),
+              color: Colors.transparent,
+            )),
         onPressed: widget.isEnabled
             ? () {
                 if (_isTappable) {

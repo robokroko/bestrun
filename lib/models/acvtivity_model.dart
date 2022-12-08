@@ -6,6 +6,9 @@ class Activity {
   double? distance;
   List<Lap> checkpoints;
   String? average;
+  String? activityName;
+  int? temperature;
+  String? weatherCondition;
   String? imageCode;
 
   Activity(
@@ -14,6 +17,9 @@ class Activity {
       this.distance,
       required this.checkpoints,
       this.average,
+      this.activityName,
+      this.temperature,
+      this.weatherCondition,
       this.imageCode});
 
   factory Activity.fromJson(Map<String, dynamic> json) {
@@ -24,6 +30,9 @@ class Activity {
       checkpoints:
           List<Lap>.from(json["checkpoints"].map((lap) => Lap.fromJson(lap))),
       average: json['average'],
+      activityName: json['activityName'],
+      temperature: json['temperature'],
+      weatherCondition: json['weatherCondition'],
       imageCode: json['imageCode'],
     );
   }
@@ -34,6 +43,9 @@ class Activity {
         'checkpoints':
             List<dynamic>.from(checkpoints.map((lap) => lap.toJson())),
         'average': average,
+        'activityName': activityName,
+        'temperature': temperature,
+        'weatherCondition': weatherCondition,
         'imageCode': imageCode,
       };
 }

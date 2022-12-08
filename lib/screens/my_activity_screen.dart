@@ -35,7 +35,6 @@ class _MyActivityScreenState extends State<MyActivityScreen> {
       backgroundColor: Colors.black,
       appBar: BestRunAppBar(),
       drawerEdgeDragWidth: 0,
-      endDrawer: Menu(),
       body: Column(
         children: [
           Padding(

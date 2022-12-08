@@ -44,7 +44,6 @@ class MyApp extends StatelessWidget {
         '/login': (BuildContext context) => LoginScreen(),
         '/about': (BuildContext context) => AboutScreen(),
         '/myActivity': (BuildContext context) => MyActivityScreen(),
-        '/profile': (BuildContext context) => UserProfileScreen(),
         '/tagwrite': (BuildContext context) => TagWriteScreen(),
       },
       home: WidgetTree(),
@@ -77,24 +76,4 @@ class _WidgetTreeState extends State<WidgetTree> {
       },
     );
   }
-}
-
-class MainPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        body: StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Valami eltört..'));
-            } else if (snapshot.hasData) {
-              return ActivityScreen();
-            } else {
-              return LoginScreen();
-            }
-          },
-        ),
-      );
 }
