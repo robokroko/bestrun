@@ -6,26 +6,19 @@ void main() {
   double lat2b = 46.26043342317442;
   double lon2b = 20.142918110751065;
 
-  double toRadians(double degree) {
-    return degree * pi / 180;
-  }
+  double getEuclidean(lat1, lon1, lat2, lon2) {
+    var d = sqrt(pow(lat2 - lat1, 2) + pow(lon2 - lon1, 2));
+    var result = 111.319 * d;
 
-  double calculateDistance(lat1, lon1, lat2, lon2) {
-    var p = 0.017453292519943295;
-    var cosinus = cos;
-    var a = 0.5 -
-        cosinus((lat2 - lat1) * p) / 2 +
-        cosinus(lat1 * p) *
-            cosinus(lat2 * p) *
-            (1 - cosinus((lon2 - lon1) * p)) /
-            2;
-
-    var result = 12742 * asin(sqrt(a));
-    print(result);
+    print('Euk: ' + result.toString());
     return result;
   }
 
-  calculateDistance(lat1a, lon1a, lat2b, lon2b);
+  getEuclidean(lat1a, lon1a, lat2b, lon2b);
+
+  double toRadians(double degree) {
+    return degree * pi / 180;
+  }
 
   final R = 6372.8;
 
@@ -38,7 +31,7 @@ void main() {
         pow(sin(dLat / 2), 2) + pow(sin(dLon / 2), 2) * cos(lat1) * cos(lat2);
     double c = 2 * asin(sqrt(a));
     var result2 = R * c;
-    print(result2);
+    print('Haversine: ' + result2.toString());
     return result2;
   }
 
@@ -124,5 +117,5 @@ void main() {
 
   getVincentyDistance(lat1a, lon1a, lat2b, lon2b);
   var magnitude = const Point(10, 10).magnitude;
-  print(magnitude);
+  print('Vincenty: ' + magnitude.toString());
 }

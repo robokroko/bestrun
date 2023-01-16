@@ -696,7 +696,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     }
   }
 
-  addDataToActivity() async {
+  dynamic addDataToActivity() async {
     final uin8list = await _mapController!.takeSnapshot();
     String snap = base64Encode(uin8list!);
     _activity.date =
